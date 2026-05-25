@@ -1,0 +1,10 @@
+# INDOR — Code Owners
+# All PRs require review from the owner
+
+# Default owner for all files
+* @jhamkee77
+
+# Security-sensitive paths require explicit review
+indor/docs/security/ @jhamkee77
+.github/workflows/ @jhamkee77
+indor/SECURITY.md @jhamkee77
