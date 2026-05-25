@@ -1,0 +1,742 @@
+﻿HOME INDOR
+Documento Maestro Modular
+El Sistema Operativo para el Hogar
+
+
+
+
+Versión 1.0 | Mayo 2026
+Preparado por: Equipo INDOR / Safe Project Solutions
+Clasificación: Documento interno — planificación, desarrollo, pitch a bancos e inversores
+________________
+
+
+Tabla de Contenidos
+SECCIÓN 1: Concepto y Contexto
+1.1 Resumen Ejecutivo
+1.2 Visión y Misión
+1.3 Propuesta de Valor Única
+1.4 Problema que Resuelve
+1.5 Modelo de Negocio y Monetización
+1.6 Stakeholders Principales
+1.7 Diferenciación vs Competencia
+SECCIÓN 2: Áreas Funcionales Detalladas
+2.1 Home Dashboard
+2.2 Service Marketplace
+2.3 Booking Flow
+2.4 Financing Integration (Synchrony)
+2.5 Contractor Flow
+2.6 Property Management
+2.7 Payment & Subscription System
+2.8 Review & Rating System
+2.9 Live Tracking
+2.10 Admin Panel (Safe Project Solutions)
+SECCIÓN 3: Definición de MVP
+3.1 Alcance del MVP
+3.2 Funcionalidades Incluidas
+3.3 Funcionalidades Excluidas (Fase 2+)
+3.4 Pantallas Prioritarias del MVP
+SECCIÓN 4: Especificaciones Técnicas
+4.1 Stack Tecnológico
+4.2 Arquitectura de la Aplicación
+4.3 Integraciones de APIs
+4.4 Base de Datos
+4.5 Autenticación y Seguridad
+4.6 Escalabilidad
+SECCIÓN 5: Guía para GPT Personalizado
+5.1 Objetivo del GPT
+5.2 Contexto Clave
+5.3 Tipos de Prompts
+5.4 Ejemplos de Prompts
+5.5 Estructura de Interacción
+SECCIÓN 6: Anexos y Referencias
+6.1 Glosario de Términos
+6.2 Flujos Visuales Documentados
+6.3 Wireframes y Mockups
+6.4 Roadmap Post-MVP
+________________
+
+
+SECCIÓN 1: CONCEPTO Y CONTEXTO
+1.1 Resumen Ejecutivo
+Home Indor es un sistema operativo digital para el hogar que transforma propiedades residenciales en activos digitales gestionados. La plataforma crea un perfil digital vivo y específico para cada propiedad, registrando hechos, sistemas, inspecciones, reparaciones, garantías, mantenimiento, riesgos y servicios.
+A diferencia de las plataformas existentes (Zillow, Angi, Thumbtack, HomeAdvisor), Home Indor no se centra en listados inmobiliarios ni en la generación de leads para contratistas. Su centro es la propiedad misma — construyendo un historial operativo continuo que acompaña al hogar a través de cambios de propietario, transacciones inmobiliarias y eventos de servicio.
+"Si una persona puede revisar el historial de un vehículo usado antes de comprarlo, ¿por qué debería una familia comprar una casa de $300,000, $500,000 u $800,000 sin un historial verificado de los sistemas principales dentro de esa propiedad?"
+La plataforma combina:
+* Marketplace de servicios del hogar (booking + ejecución)
+* House Facts Record (tipo Carfax para propiedades)
+* Integración de financiamiento (Synchrony Financial)
+* Panel administrativo (Safe Project Solutions)
+* Sistema de mantenimiento preventivo con alertas e inteligencia
+1.2 Visión y Misión
+Elemento
+	Descripción
+	Visión
+	Convertirse en la capa de infraestructura que proteja el activo más importante de las familias: su hogar. Crear un futuro donde cada hogar tenga un registro operativo verificado.
+	Misión
+	Ayudar a los consumidores a proteger, entender y gestionar la condición, riesgo, valor e historial operativo a largo plazo de su propiedad mediante una plataforma digital centralizada.
+	
+
+1.3 Propuesta de Valor Única
+Home Indor es el único sistema operativo para el hogar que ofrece:
+* House Facts Record — Registro vivo estilo Carfax que sigue a la propiedad a lo largo del tiempo.
+* Perfil basado en dirección — La propiedad es el ancla, no el usuario. Persiste a través de cambios de propietario.
+* Inspección a acción — Convierte hallazgos de inspección en tareas, seguimiento y prioridades de reparación.
+* Inteligencia de garantías — Rastrea edad de equipos, estado de garantía y oportunidades de transferencia.
+* Marketplace inteligente — Recomienda servicios basados en necesidades reales de la propiedad.
+* Financiamiento integrado — Planes mensuales vía Synchrony Financial para servicios grandes y pequeños.
+* Paquete de transferencia — Documentación lista para transacciones inmobiliarias.
+* Protección al consumidor — Misión de transparencia, documentación y confianza.
+* Ciclo de vida completo — Soporta antes de compra, durante propiedad, y en reventa.
+* Enfoque comunitario — Mejora calidad, seguridad y documentación del inventario de viviendas.
+1.4 Problema que Resuelve
+Problema
+	Descripción
+	Información dispersa
+	Reportes, facturas, recibos, emails, fotos, garantías y registros están desorganizados.
+	Compradores a ciegas
+	No conocen edad real, garantías, historial de reemplazo o costos futuros.
+	Realtors sin claridad
+	Reportes de inspección dicen 'consulte un contratista' sin más detalle.
+	Propietarios pierden historial
+	Pierden documentación de reparaciones, garantías y mantenimiento.
+	Sorpresas post-cierre
+	Dañan confianza, crean estrés financiero, reducen protección al consumidor.
+	Sin registro operativo
+	La mayoría de casas no tienen un registro confiable organizado.
+	
+
+1.5 Modelo de Negocio y Monetización
+Motor Universal de Monetización
+Fuente de Ingreso
+	Descripción
+	Estimado
+	Service Fee
+	Tarifa por transacción en cada servicio reservado
+	8% - 15%
+	Financing Fee
+	Comisión por facilitar financiamiento con Synchrony
+	1% - 3%
+	Suscripciones
+	Planes Essentials ($59), Plus ($89), Premium ($149)
+	Recurrente
+	Interest Income
+	Ingreso por intereses de socios financieros
+	Variable
+	Servicios recurrentes
+	Suscripciones y planes de mantenimiento
+	Recurrente
+	
+
+Planes de Membresía
+Plan
+	Precio Mensual
+	Anual (ahorro 20%)
+	Incluye
+	Essentials
+	$59/mo
+	~$47/mo
+	Servicios básicos
+	Plus (Más Popular)
+	$89/mo
+	~$71/mo
+	Todo Essentials + ampliados
+	Premium
+	$149/mo
+	~$119/mo
+	Todo Plus + premium y prioridad
+	
+
+1.6 Stakeholders Principales
+Stakeholder
+	Rol en la Plataforma
+	Homeowners
+	Usuarios principales. Gestionan hogar, reservan servicios, financian reparaciones.
+	Buyers
+	Acceden al historial de propiedad antes/después del cierre. Revisión de riesgos.
+	Sellers
+	Soportan declaraciones con evidencia. Paquete de transferencia.
+	Realtors
+	Reducen sorpresas post-cierre. Dashboard de transacción.
+	Contractors
+	Proveen servicios. Pago completo por adelantado vía Synchrony.
+	Synchrony Financial
+	Originan préstamos, generan intereses, acceden a clientes.
+	Property Managers
+	Mantenimiento y documentación para portafolio de propiedades.
+	Safe Project Solutions
+	Opera el panel admin. Monitorea ingresos y operaciones.
+	
+
+1.7 Diferenciación vs Competencia
+Tabla comparativa de capacidades:
+Capacidad
+	Home Indor
+	Listing Sites
+	Service Mkts
+	Inspection SW
+	Doc Vaults
+	Prop Mgmt
+	Registro digital propiedad
+	SÍ
+	LIMITADO
+	—
+	LIMITADO
+	PARCIAL
+	PARCIAL
+	Historial del hogar
+	SÍ
+	LIMITADO
+	LIMITADO
+	LIMITADO
+	PARCIAL
+	PARCIAL
+	Inspección + contratista
+	SÍ
+	—
+	PARCIAL
+	PARCIAL
+	—
+	PARCIAL
+	Inteligencia garantías
+	SÍ
+	—
+	—
+	LIMITADO
+	PARCIAL
+	LIMITADO
+	Mantenimiento + servicio
+	SÍ
+	—
+	PARCIAL
+	—
+	LIMITADO
+	SÍ
+	Paquete transferencia
+	SÍ
+	—
+	—
+	LIMITADO
+	PARCIAL
+	—
+	Multi-stakeholder
+	SÍ
+	PARCIAL
+	PARCIAL
+	PARCIAL
+	PARCIAL
+	PARCIAL
+	Protección consumidor
+	SÍ
+	PARCIAL
+	PARCIAL
+	LIMITADO
+	PARCIAL
+	LIMITADO
+	
+
+"Home Indor no es solo un listing site, no es solo un marketplace de generación de leads, no es solo software de inspección, no es solo un vault de documentos. Es el sistema operativo e inteligencia del hogar."
+________________
+
+
+SECCIÓN 2: ÁREAS FUNCIONALES DETALLADAS
+2.1 Home Dashboard
+El Dashboard del Hogar es la pantalla principal que proporciona una vista centralizada del estado, valor e inteligencia de la propiedad.
+Componente
+	Descripción
+	Property Selector
+	Dropdown para seleccionar entre múltiples propiedades
+	Home Value
+	Valor estimado ($550,000) con tendencia vs mes anterior (↑2.4%)
+	Maintenance Score
+	Puntuación 0-100 con calificación cualitativa
+	Active Projects
+	Contador de proyectos en progreso
+	Alerts
+	Alertas proactivas (ej: 'HVAC Filter Change — Due in 12 days')
+	Next Tasks
+	Próximas citas con fecha y hora
+	HVAC System Card
+	Marca, modelo, serial, instalación, garantía
+	Quick Actions
+	Book a Service, Documents, Financing, Find Pros, Ask INDOR
+	Recommended
+	Servicios recomendados basados en datos de propiedad
+	
+
+2.2 Service Marketplace
+Marketplace para explorar y reservar servicios con simplicidad de apps on-demand líderes.
+Servicio
+	Rango de Precio
+	HVAC
+	$89 - $299
+	Plumbing
+	$99 - $499
+	Electrical
+	$89 - $399
+	Cleaning
+	$89 - $199
+	Lawn Care
+	$49 - $199
+	Trash Service
+	$15 - $35
+	Moving Setup
+	Variable
+	Emergency Repair
+	Variable
+	
+
+Características clave: categorías deslizables, live pricing transparente, trusted providers verificados, ratings con reviews, barra de búsqueda, garantía de satisfacción.
+2.3 Booking Flow
+Proceso completo de reserva en 4 pasos:
+Paso
+	Nombre
+	Funcionalidad
+	1
+	Select
+	Búsqueda, categorías, lista de servicios populares con precios
+	2
+	Customize
+	Add-ons opcionales, total dinámico, detalle de lo incluido
+	3
+	Schedule
+	Calendario, time slots, duración del servicio, opción repetir
+	4
+	Confirm
+	Resumen completo, Booking ID, método de pago, 'What's Next?'
+	
+
+2.4 Financing Integration (Synchrony Financial)
+Integración API completa que permite financiamiento instantáneo dentro de la app.
+Flujo de 6 Pasos
+Paso
+	Acción
+	Actor
+	1
+	Cliente selecciona servicio en app
+	Cliente
+	2
+	Cliente elige 'Pay Monthly'
+	Cliente
+	3
+	INDOR envía datos al API de Synchrony
+	Sistema
+	4
+	Synchrony retorna aprobación y planes
+	Synchrony
+	5
+	Synchrony paga al contratista (monto completo)
+	Synchrony
+	6
+	Cliente paga a Synchrony mensualmente
+	Cliente
+	
+
+Revenue de INDOR
+INDOR gana service fee (8-15%) del contratista y financing fee (1-3%) de Synchrony por facilitar el financiamiento.
+2.5 Contractor Flow
+Flujo completo de 14 pasos para registro, verificación y operación de contratistas.
+Fase
+	Pasos
+	Descripción
+	Registro
+	1-9
+	Bienvenida → Tipo proveedor → Info personal → Servicios → Disponibilidad → Info adicional → Documentos → Términos → Revisión
+	Verificación
+	10-12
+	Solicitud enviada → En revisión → Aprobado
+	Activación
+	13-14
+	Activar cuenta (online, zona, pago) → Dashboard listo para trabajar
+	
+
+Dashboard del contratista incluye: ganancias, trabajos disponibles, detalles de trabajo, flujo Before/After photos, reviews y calificaciones.
+2.6 Property Management
+Flujo 'Add Property & Pull Data' en 2 pantallas:
+* Address lookup con auto-verificación y checkmark verde
+* Property Details auto-populated: beds, baths, sqft, lot size, year built
+* Equipment serial numbers: HVAC y Water Heater con tags 'Verified'
+* Confirmación 'Property Data Imported' con botón 'Continue to Dashboard'
+Sistemas rastreados: HVAC, Water Heater, Roof, Electrical, Plumbing, Appliances, Safety Devices, Foundation/Structure.
+2.7 Payment & Subscription System
+Plan
+	Precio
+	Descripción
+	Essentials
+	$59/mo
+	Servicios básicos de mantenimiento
+	Plus (Popular)
+	$89/mo
+	Todo Essentials + servicios ampliados
+	Premium
+	$149/mo
+	Todo Plus + prioridad y premium
+	
+
+Dashboard incluye: plan actual, próximo cobro, beneficios, método de pago, historial de facturación con estados 'Paid'.
+2.8 Review & Rating System
+Sistema de 5 estrellas con comentario opcional. Rating visible en perfil de contratista, tarjetas de servicio y al asignar proveedor. Contratistas ven rating general y reviews individuales.
+2.9 Live Tracking
+Etapa
+	Funcionalidad
+	Finding Provider
+	Animación radar — 'Finding best provider near you...'
+	Provider Assigned
+	Perfil: nombre, foto, rating, distancia. Chat / Call
+	On the Way
+	Mapa en tiempo real con ubicación y ETA
+	In Progress
+	Checklist de tareas en tiempo real
+	Completed
+	Fotos Before/After, confirmación, rating
+	
+
+2.10 Admin Panel (Safe Project Solutions)
+Módulo
+	Funcionalidad
+	Dashboard
+	Revenue total, active customers, active contractors, inspections
+	Job Monitoring
+	Lista de trabajos con estado y contratista asignado
+	Contractors
+	Gestión: lista, estado (Active/Pending), aprobaciones
+	Customers
+	CRM de clientes con datos y actividad
+	Projects
+	Proyectos mayores con valor y estado
+	Financials
+	Gráficos de ingresos por tipo de servicio
+	
+
+Smart Upsell: escalación automática de servicios básicos a proyectos mayores (inspección → propuesta → financiamiento → ejecución).
+________________
+
+
+SECCIÓN 3: DEFINICIÓN DE MVP
+3.1 Alcance del MVP
+El MVP está enfocado en el flujo principal del homeowner — desde onboarding hasta reserva y financiamiento. Optimizado para pitch a bancos (Synchrony), validación de mercado en Charlotte, NC, y proof of concept del sistema operativo del hogar.
+3.2 Funcionalidades Incluidas en el MVP
+* User Authentication — email/password, Google, Apple Sign-In
+* Add Property Flow — address lookup, auto-populate, serial numbers, verificación
+* Home Dashboard Básico — métricas, alertas, quick actions, recommended services
+* Service Marketplace — catálogo con categorías, búsqueda, precios transparentes
+* Booking Flow Completo — Select → Customize → Schedule → Confirm
+* Financing Integration Synchrony — Pay Monthly, planes, pre-approval, confirmación
+* Confirmación y Tracking Básico — provider assigned, mapa, status, Before/After
+* Payment Method Setup — tarjeta, Synchrony, dashboard de pagos básico
+3.3 Funcionalidades Excluidas (Fase 2+)
+Funcionalidad
+	Fase
+	Razón
+	Contractor Full Onboarding
+	Fase 2
+	Se gestiona manualmente al inicio
+	Admin Panel Completo
+	Fase 2
+	Módulos de monitoreo en desarrollo
+	Review System Avanzado
+	Fase 2
+	Solo rating básico en MVP
+	Membership Plans
+	Fase 2
+	Planes recurrentes complejos
+	House Facts Record
+	Fase 2
+	Registro vivo acumulativo
+	Transfer Package
+	Fase 2
+	Paquete para transacciones
+	Smart Upsell
+	Fase 2
+	Escalación automática
+	Warranty Intelligence
+	Fase 2
+	Lookup automatizado
+	Inspection Parsing
+	Fase 3
+	Parseo automático
+	Property Transfer Digital
+	Fase 3
+	Transferencia post-cierre
+	
+
+3.4 Pantallas Prioritarias del MVP (20 Pantallas)
+* 1. Splash / Welcome Screen
+* 2. Sign Up / Login
+* 3. Add Property
+* 4. Property Data Imported
+* 5. Home Dashboard
+* 6. Service Marketplace
+* 7. Service Detail
+* 8. Customize Service
+* 9. Schedule
+* 10. Confirm Booking
+* 11. Payment Options
+* 12. Financing Plans (Synchrony)
+* 13. Pre-Approval
+* 14. Order Confirmed
+* 15. Live Tracking
+* 16. Service In Progress
+* 17. Service Completed + Rating
+* 18. Payment Dashboard
+* 19. Profile / Account
+* 20. Notifications
+________________
+
+
+SECCIÓN 4: ESPECIFICACIONES TÉCNICAS
+4.1 Stack Tecnológico
+App Móvil
+Capa
+	Tecnología
+	Justificación
+	Framework
+	React Native + Expo
+	Código compartido iOS/Android, ecosistema maduro
+	Lenguaje
+	TypeScript
+	Type safety, mejor mantenibilidad
+	Navegación
+	React Navigation v6+
+	Estándar en React Native
+	Estado Global
+	Zustand
+	Gestión de estado predecible y ligera
+	UI Components
+	NativeBase / RN Paper
+	Componentes consistentes cross-platform
+	Mapas
+	react-native-maps
+	Live tracking del proveedor
+	
+
+Backend
+Capa
+	Tecnología
+	Justificación
+	Runtime
+	Node.js + NestJS
+	Ecosystem JavaScript unificado
+	API
+	REST + WebSockets
+	CRUD + real-time tracking
+	Base de Datos
+	PostgreSQL
+	Relaciones complejas property-centric
+	Cache
+	Redis
+	Sesiones, datos real-time
+	ORM
+	Prisma
+	Type-safe database access
+	Real-time
+	Socket.io
+	Live tracking, notificaciones
+	
+
+4.2 Integraciones API
+API
+	Propósito
+	Prioridad
+	Synchrony Financial
+	Financiamiento, aprobaciones, planes
+	✅ Crítica
+	Stripe
+	Procesamiento de pagos
+	✅ Crítica
+	Google Maps Platform
+	Geocoding, mapas, tracking
+	✅ Crítica
+	Firebase Auth
+	Autenticación email/Google/Apple
+	✅ Crítica
+	Firebase Cloud Messaging
+	Push notifications
+	✅ Crítica
+	Twilio
+	SMS de verificación
+	Alta
+	SendGrid
+	Emails transaccionales
+	Alta
+	AWS S3
+	Almacenamiento fotos/docs
+	✅ Crítica
+	Property Data APIs
+	Datos públicos de propiedad
+	Fase 2
+	
+
+4.3 Modelos de Datos Principales
+Entidades core del sistema:
+Entidad
+	Campos Clave
+	User
+	id, email, name, phone, auth_provider, role
+	Property
+	id, user_id, address, beds, baths, sqft, year_built, home_value, maintenance_score
+	PropertySystem
+	id, property_id, type, brand, model, serial, warranty_status
+	Service
+	id, name, category, base_price, price_range, duration, rating
+	Booking
+	id, user_id, property_id, service_id, contractor_id, date, status, total, payment_method
+	Contractor
+	id, provider_type, services, availability, rating, status
+	FinancingApplication
+	id, user_id, booking_id, synchrony_id, status, credit_limit, monthly_payment
+	Review
+	id, booking_id, user_id, contractor_id, rating, comment
+	Payment
+	id, user_id, booking_id, amount, method, status
+	Document
+	id, property_id, type, file_url, system_id
+	
+
+4.4 Seguridad
+* JWT tokens con refresh tokens. OAuth 2.0 para Google/Apple
+* HTTPS/TLS en tránsito. AES-256 en reposo
+* Stripe como procesador PCI DSS compliant
+* Synchrony API servidor-a-servidor, nunca exponer credenciales al cliente
+* URLs firmadas de S3 con expiración para documentos
+* Rate limiting y input validation en todos los endpoints
+________________
+
+
+SECCIÓN 5: GUÍA PARA ENTRENAMIENTO DE GPT PERSONALIZADO
+5.1 Objetivo
+Crear un asistente de IA especializado que conozca la arquitectura, flujos y reglas de negocio de Home Indor. Actúa como 'CTO virtual' para guiar desarrollo iterativo fase por fase.
+5.2 Contexto Clave
+Dato
+	Valor
+	Nombre
+	Home Indor / INDOR
+	Empresa
+	Safe Project Solutions
+	Fundador
+	Ricardo Rivera
+	Mercado Inicial
+	Charlotte, North Carolina
+	Target MVP
+	Homeowners
+	Partner Financiero
+	Synchrony Financial
+	Modelo
+	Marketplace + Home OS + Financiamiento
+	TAM
+	$500B+ Home Services Industry
+	
+
+5.3 Fases de Desarrollo
+Fase
+	Nombre
+	Features
+	1
+	Project Setup
+	Estructura, navegación, configuración
+	2
+	Authentication
+	Welcome, Sign Up, Login, Social Auth
+	3
+	Property Onboarding
+	Add Property, Data Import
+	4
+	Home Dashboard
+	Métricas, alertas, quick actions
+	5
+	Service Marketplace
+	Catálogo, búsqueda, categorías
+	6
+	Booking Flow
+	Select → Customize → Schedule → Confirm
+	7
+	Financing
+	Synchrony flow completo
+	8
+	Live Tracking
+	Mapa, status, Before/After
+	9
+	Payments
+	Dashboard, historial, AutoPay
+	10
+	Profile & Settings
+	Cuenta, propiedades, notificaciones
+	11
+	Polish & QA
+	Animaciones, testing, edge cases
+	12
+	Backend API
+	Endpoints con base de datos
+	
+
+5.4 Formato de Prompt Recomendado
+Estructura ideal para interactuar con el GPT:
+* [CONTEXTO] — Proyecto, stack, fase actual, pantalla/feature
+* [REQUISITOS] — Lista específica de lo que se necesita
+* [RESTRICCIONES] — Paleta de colores, componentes, TypeScript
+* [ENTREGABLE] — Archivos y funcionalidad esperados
+________________
+
+
+SECCIÓN 6: ANEXOS Y REFERENCIAS
+6.1 Glosario de Términos
+Término
+	Definición
+	Home Indor / INDOR
+	Sistema operativo para el hogar
+	House Facts
+	Registro vivo estilo Carfax de la propiedad
+	Transfer Package
+	Paquete de documentación para transacciones inmobiliarias
+	Safe Project Solutions
+	Empresa operadora, gestiona panel admin
+	Smart Upsell
+	Escalación inteligente de servicios a proyectos
+	Maintenance Score
+	Puntuación de salud de mantenimiento (0-100)
+	Pay Monthly
+	Financiamiento mensual vía Synchrony
+	Before/After Photos
+	Fotos obligatorias del contratista como prueba
+	Soft Credit Check
+	Verificación que no afecta puntaje crediticio
+	MVP
+	Minimum Viable Product
+	TAM
+	Total Addressable Market ($500B+)
+	
+
+6.2 Documentos Fuente Analizados
+Documento
+	Contenido
+	Home Indor Platform Invention Summary.pdf
+	Resumen de invención, tesis, problema, solución, patentabilidad
+	Home Indor Detailed System Workflow.pdf
+	Workflow detallado de 16 pasos, House Facts, Transfer Package, datos
+	El Corazón de Indor.pdf
+	Estrategia de lanzamiento, House Facts Preview, posicionamiento
+	Home Indor Differences and Positioning.pdf
+	Análisis competitivo, matriz de diferenciación, posicionamiento
+	15 imágenes UI/UX
+	Flujos completos cliente/contratista/admin, Synchrony, dashboard, marketplace
+	
+
+6.3 Roadmap Post-MVP
+Fase
+	Período
+	Foco
+	1 — MVP
+	Mes 1-3
+	Auth, Property, Dashboard, Marketplace, Booking, Financing, Tracking
+	2 — Core Platform
+	Mes 4-6
+	Contractor onboarding, Admin panel, Reviews, Memberships, Upsell
+	3 — Intelligence
+	Mes 7-9
+	House Facts, Warranty intelligence, Inspection parsing, Transfer Package
+	4 — Ecosystem
+	Mes 10-12
+	Multi-market, Public data APIs, Property transfer digital
+	5 — Scale
+	Mes 13+
+	National expansion, Insurance, AI, Predictive maintenance
