@@ -1,0 +1,317 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum UserRole {
+  homeowner
+  renter
+  realtor
+  property_manager
+  provider
+  admin
+}
+
+enum OrderStatus {
+  Requested
+  Confirmed
+  ProviderAssigned
+  OnTheWay
+  Arrived
+  WorkInProgress
+  EstimateSent
+  Completed
+  Reviewed
+  SavedToPropertyRecord
+}
+
+enum PaymentStatus {
+  pending
+  processing
+  succeeded
+  failed
+  refunded
+}
+
+enum PaymentMethod {
+  card
+  synchrony
+}
+
+enum ProviderStatus {
+  pending
+  approved
+  active
+  suspended
+  rejected
+}
+
+enum DocumentType {
+  photo
+  invoice
+  report
+  warranty
+  inspection
+  before_after
+  other
+}
+
+enum HomeSystemType {
+  hvac
+  water_heater
+  roof
+  electrical
+  plumbing
+  appliances
+  safety_devices
+  foundation
+  other
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String?
+  name          String
+  phone         String?
+  role          UserRole  @default(homeowner)
+  authProvider  String?   // 'local', 'google', 'apple'
+  refreshToken  String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  properties    Property[]
+  orders        Order[]
+  payments      Payment[]
+  documents     Document[]
+  sentMessages  Message[]    @relation("sender")
+  auditLogs     AuditLog[]
+  reviews       Review[]
+
+  @@map("users")
+}
+
+model Property {
+  id               String    @id @default(uuid())
+  userId           String
+  address          String
+  city             String?
+  state            String?
+  zipCode          String?
+  beds             Int?
+  baths            Float?
+  sqft             Int?
+  lotSize          Float?
+  yearBuilt        Int?
+  homeValue        Float?
+  maintenanceScore Int?      @default(0) // 0-100
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  homeSystems      HomeSystem[]
+  orders           Order[]
+  documents        Document[]
+
+  @@map("properties")
+}
+
+model HomeSystem {
+  id              String         @id @default(uuid())
+  propertyId      String
+  type            HomeSystemType
+  brand           String?
+  model           String?
+  serialNumber    String?
+  installDate     DateTime?
+  warrantyExpiry  DateTime?
+  warrantyStatus  String?        // 'active', 'expired', 'unknown'
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  property        Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  documents       Document[]
+
+  @@map("home_systems")
+}
+
+model Service {
+  id            String    @id @default(uuid())
+  name          String
+  category      String
+  description   String?
+  basePrice     Float
+  priceRangeMin Float?
+  priceRangeMax Float?
+  duration      String?   // e.g. '2-4 hours'
+  rating        Float?    @default(0)
+  isActive      Boolean   @default(true)
+  questions     Json?     // JSON array of booking questions
+  addOns        Json?     // JSON array of available add-ons
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders        Order[]
+
+  @@map("services")
+}
+
+model Provider {
+  id              String         @id @default(uuid())
+  userId          String?        // linked user account (if registered)
+  companyName     String?
+  contactName     String
+  email           String         @unique
+  phone           String?
+  providerType    String?        // 'individual', 'company'
+  serviceAreas    Json?          // JSON array of zip codes or areas
+  servicesOffered Json?          // JSON array of service category IDs
+  availability    Json?          // JSON schedule
+  rating          Float?         @default(0)
+  status          ProviderStatus @default(pending)
+  isVerified      Boolean        @default(false)
+  documentsUrl    String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  orders          Order[]
+
+  @@map("providers")
+}
+
+model Order {
+  id            String       @id @default(uuid())
+  userId        String
+  propertyId    String
+  serviceId     String
+  providerId    String?
+  paymentId     String?      @unique
+  status        OrderStatus  @default(Requested)
+  bookingDate   DateTime?
+  scheduledDate DateTime?
+  completedDate DateTime?
+  totalAmount   Float?
+  notes         String?
+  addOns        Json?        // JSON of selected add-ons
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  user          User         @relation(fields: [userId], references: [id])
+  property      Property     @relation(fields: [propertyId], references: [id])
+  service       Service      @relation(fields: [serviceId], references: [id])
+  provider      Provider?    @relation(fields: [providerId], references: [id])
+  payment       Payment?     @relation(fields: [paymentId], references: [id])
+  documents     Document[]
+  messages      Message[]
+  reviews       Review[]
+
+  @@index([userId])
+  @@index([propertyId])
+  @@index([status])
+  @@map("orders")
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  userId           String
+  amount           Float
+  method           PaymentMethod @default(card)
+  status           PaymentStatus @default(pending)
+  stripeIntentId   String?
+  stripeChargeId   String?
+  synchronyLoanId  String?       // Phase 4+ Synchrony integration
+  receiptUrl       String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  user             User          @relation(fields: [userId], references: [id])
+  order            Order?
+
+  @@index([userId])
+  @@index([stripeIntentId])
+  @@map("payments")
+}
+
+model Document {
+  id            String       @id @default(uuid())
+  propertyId    String?
+  orderId       String?
+  homeSystemId  String?
+  uploadedById  String
+  type          DocumentType @default(other)
+  fileName      String
+  fileUrl       String
+  fileSize      Int?
+  mimeType      String?
+  description   String?
+  createdAt     DateTime     @default(now())
+
+  property      Property?    @relation(fields: [propertyId], references: [id])
+  order         Order?       @relation(fields: [orderId], references: [id])
+  homeSystem    HomeSystem?  @relation(fields: [homeSystemId], references: [id])
+  uploadedBy    User         @relation(fields: [uploadedById], references: [id])
+
+  @@index([propertyId])
+  @@index([orderId])
+  @@map("documents")
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  orderId   String
+  senderId  String
+  content   String
+  type      String   @default("text") // 'text', 'system', 'image'
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  sender    User     @relation("sender", fields: [senderId], references: [id])
+
+  @@index([orderId])
+  @@map("messages")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  orderId   String
+  userId    String
+  rating    Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([orderId, userId])
+  @@map("reviews")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String   // e.g. 'order.status_changed', 'provider.approved', 'admin.assigned_provider'
+  entityType String   // e.g. 'order', 'user', 'property'
+  entityId   String
+  metadata   Json?    // extra context (old status, new status, etc.)
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
