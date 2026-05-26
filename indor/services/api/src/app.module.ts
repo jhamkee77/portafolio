@@ -13,6 +13,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { MessagesModule } from './modules/messages/messages.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
@@ -35,6 +36,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     PaymentsModule,
     DocumentsModule,
     MessagesModule,
+    NotificationsModule,
     AdminModule,
   ],
   providers: [

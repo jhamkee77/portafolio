@@ -21,6 +21,12 @@ describe('PropertiesService', () => {
       findUnique: jest.fn(),
       delete: jest.fn(),
     },
+    order: {
+      findMany: jest.fn(),
+    },
+    document: {
+      findMany: jest.fn(),
+    },
   };
 
   beforeEach(async () => {
@@ -128,6 +134,65 @@ describe('PropertiesService', () => {
 
       const result = await service.removeHomeSystem('hs-1', 'user-1');
       expect(result.deleted).toBe(true);
+    });
+  });
+
+  describe('getHouseFacts', () => {
+    it('returns a property technical timeline and deterministic maintenance score', async () => {
+      mockPrisma.property.findUnique.mockResolvedValue({
+        id: 'prop-1',
+        userId: 'user-1',
+        address: '123 Main St',
+        maintenanceScore: 0,
+        homeSystems: [
+          { id: 'hs-1', type: 'hvac', brand: 'Carrier', warrantyStatus: 'active' },
+        ],
+      });
+      mockPrisma.order.findMany.mockResolvedValue([
+        {
+          id: 'order-1',
+          status: 'SavedToPropertyRecord',
+          completedDate: new Date('2026-05-01T12:00:00Z'),
+          createdAt: new Date('2026-04-20T12:00:00Z'),
+          totalAmount: 250,
+          service: { id: 'svc-1', name: 'HVAC Tune-Up', category: 'hvac' },
+          provider: { id: 'prov-1', contactName: 'Alex Tech', companyName: 'Safe HVAC' },
+          payment: { id: 'pay-1', status: 'succeeded', amount: 250 },
+          documents: [{ id: 'doc-order', type: 'report', fileName: 'hvac-report.pdf' }],
+        },
+      ]);
+      mockPrisma.document.findMany.mockResolvedValue([
+        {
+          id: 'doc-1',
+          type: 'warranty',
+          fileName: 'hvac-warranty.pdf',
+          createdAt: new Date('2026-04-01T12:00:00Z'),
+        },
+      ]);
+
+      const result = await service.getHouseFacts('prop-1', 'user-1');
+
+      expect(result.property.id).toBe('prop-1');
+      expect(result.maintenanceScore).toBeGreaterThan(0);
+      expect(result.timeline[0]).toEqual(
+        expect.objectContaining({
+          type: 'service_completed',
+          title: 'HVAC Tune-Up',
+        }),
+      );
+      expect(result.riskSignals).toContain('Property record has limited service history');
+    });
+
+    it('throws ForbiddenException when requesting another user property facts', async () => {
+      mockPrisma.property.findUnique.mockResolvedValue({
+        id: 'prop-1',
+        userId: 'owner-1',
+        homeSystems: [],
+      });
+
+      await expect(service.getHouseFacts('prop-1', 'user-2')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });

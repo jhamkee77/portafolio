@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { Property, PaginatedResponse } from '@/types';
+import type { HouseFactsRecord, Property, PaginatedResponse } from '@/types';
 
 export const propertiesApi = {
   list: (page = 1, limit = 20) =>
@@ -7,6 +7,9 @@ export const propertiesApi = {
 
   get: (id: string) =>
     api.get<Property>(`/properties/${id}`).then((r) => r.data),
+
+  getHouseFacts: (id: string) =>
+    api.get<HouseFactsRecord>(`/properties/${id}/house-facts`).then((r) => r.data),
 
   create: (data: Partial<Property>) =>
     api.post<Property>('/properties', data).then((r) => r.data),

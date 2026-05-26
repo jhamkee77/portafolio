@@ -7,12 +7,14 @@ import {
   Body,
   Query,
   UseGuards,
+  Req,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { JwtAuthGuard, RolesGuard } from '../../common/guards';
-import { Roles, CurrentUser } from '../../common/decorators';
+import { Roles, CurrentUser, Public } from '../../common/decorators';
 
 @ApiTags('payments')
 @ApiBearerAuth()
@@ -20,6 +22,16 @@ import { Roles, CurrentUser } from '../../common/decorators';
 @Controller('payments')
 export class PaymentsController {
   constructor(private paymentsService: PaymentsService) {}
+
+  @Post('webhook/stripe')
+  @Public()
+  @ApiOperation({ summary: 'Receive Stripe webhook events' })
+  handleStripeWebhook(
+    @Req() req: any,
+    @Headers('stripe-signature') signature?: string,
+  ) {
+    return this.paymentsService.handleStripeWebhook(req.rawBody || req.body, signature);
+  }
 
   @Post('intent')
   @ApiOperation({ summary: 'Create a payment intent for an order' })
