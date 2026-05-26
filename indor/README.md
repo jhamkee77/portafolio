@@ -87,11 +87,82 @@ npm run dev
 ### Services
 | Service | URL |
 |---------|-----|
-| API | http://localhost:3001 |
-| API Docs (Swagger) | http://localhost:3001/api |
-| Web | http://localhost:3000 |
+| API | http://localhost:3000 |
+| API Docs (Swagger) | http://localhost:3000/api |
+| Web | http://localhost:3001 |
 | PostgreSQL | localhost:5432 |
 | Redis | localhost:6379 |
+| MinIO Console | http://localhost:9001 |
+
+---
+
+## Deployment
+
+### Option 1 — Docker Compose (single host / VPS)
+
+Builds API + Web images and runs the full stack with managed Postgres / Redis / MinIO.
+
+```bash
+cd indor
+cp .env.example .env   # fill in JWT_SECRET, JWT_REFRESH_SECRET, etc.
+docker compose --profile app up --build -d
+```
+
+| Service | Port |
+|--------|------|
+| Web (Next.js) | 3001 → container :3000 |
+| API (NestJS) | 3000 |
+| Postgres | 5432 |
+| Redis | 6379 |
+| MinIO (S3) | 9000 / console 9001 |
+
+Migrations run automatically on container start (`prisma migrate deploy`).
+
+### Option 2 — Vercel (Web) + Railway / Render (API + DB)
+
+**Frontend → Vercel**
+
+1. Connect the repo, point the Project root to `indor/apps/web`.
+2. Vercel auto-detects Next.js (`vercel.json` confirms framework + region).
+3. Add env vars: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SOCKET_URL`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`.
+
+**Backend → Railway** (via Dockerfile)
+
+1. New service → Deploy from GitHub → root directory `indor/services/api`.
+2. Railway reads [`railway.json`](services/api/railway.json) and builds from the Dockerfile.
+3. Attach a Postgres plugin → wire `DATABASE_URL`. Attach Redis → `REDIS_URL`.
+4. Set `JWT_SECRET`, `JWT_REFRESH_SECRET`, `CORS_ORIGIN` (= Vercel URL), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, AWS S3 keys.
+5. The container's start command runs migrations then `node dist/main.js`.
+
+**Backend → Render** (alternative, via [`infra/render.yaml`](infra/render.yaml))
+
+```bash
+# In Render dashboard:
+# New + → Blueprint → point at this repo → select indor/infra/render.yaml
+```
+
+### Required environment variables (production)
+
+| Variable | Where |
+|----------|-------|
+| `DATABASE_URL` | API (Postgres connection) |
+| `REDIS_URL` | API (queue) |
+| `JWT_SECRET`, `JWT_REFRESH_SECRET` | API (64-char random hex) |
+| `CORS_ORIGIN` | API (Vercel URL of web) |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | API (Stripe dashboard) |
+| `AWS_S3_BUCKET`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` | API (or leave AWS_S3_ENDPOINT blank to hit real S3) |
+| `NEXT_PUBLIC_API_URL` | Web |
+| `NEXT_PUBLIC_SOCKET_URL` | Web |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Web |
+
+### CI / CD
+
+`.github/workflows/ci.yml` runs on every push and PR:
+- API: install → prisma generate → build → migrate → unit tests (79 tests)
+- Web: install → typecheck → build
+- Docker: image build (API + Web) — PR-only, cached with GHA cache
+
+`.github/workflows/security.yml` runs CodeQL (SAST), gitleaks (secret scan) and `npm audit` weekly + on every PR.
 
 ---
 
@@ -99,12 +170,12 @@ npm run dev
 
 | Phase | PR | Status | Description |
 |-------|----|--------|-------------|
-| **0** | #1 | ✅ In Progress | Scaffolding + security foundation |
-| **1** | #2 | ⏳ Pending | Backend + DB + order state machine |
-| **2** | #3 | ⏳ Pending | Next.js web MVP + booking loop |
-| **3** | #4 | ⏳ Pending | Admin + Provider portal |
-| **4** | #5 | ⏳ Pending | Stripe payments + S3 + notifications |
-| **5+** | — | ⏳ Future | House Facts, Realtor, Mobile, AI |
+| **0 + 1** | [#10](https://github.com/jhamkee77/portafolio/pull/10) | ✅ Merged | Scaffolding + NestJS API + 11 modules |
+| **2** | [#11](https://github.com/jhamkee77/portafolio/pull/11) | ✅ Merged | Next.js frontend (19 routes) |
+| **3** | [#12](https://github.com/jhamkee77/portafolio/pull/12) | ✅ Merged | Integration + Supabase + E2E tests |
+| **4** | [#13](https://github.com/jhamkee77/portafolio/pull/13) | ✅ Merged | Stripe payments + S3 documents + notifications |
+| **5** | #14 | 🚀 This PR | Docker images + Vercel/Railway/Render configs + CI hardening |
+| **6+** | — | 🔮 Future | House Facts, Realtor, Mobile, AI features |
 
 ---
 
