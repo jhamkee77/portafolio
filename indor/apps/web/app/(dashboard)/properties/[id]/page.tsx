@@ -6,16 +6,23 @@ import Link from 'next/link';
 import { propertiesApi } from '@/lib/api/properties';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/badge';
-import type { Property } from '@/types';
+import type { HouseFactsRecord } from '@/types';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<any>(null);
+  const [houseFacts, setHouseFacts] = useState<HouseFactsRecord | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      propertiesApi.get(id).then(setProperty).catch(() => {}).finally(() => setLoading(false));
+      Promise.all([
+        propertiesApi.get(id),
+        propertiesApi.getHouseFacts(id).catch(() => null),
+      ]).then(([propertyResult, houseFactsResult]) => {
+        setProperty(propertyResult);
+        setHouseFacts(houseFactsResult);
+      }).catch(() => {}).finally(() => setLoading(false));
     }
   }, [id]);
 
@@ -66,6 +73,47 @@ export default function PropertyDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {houseFacts && (
+        <Card className="mt-8">
+          <CardHeader>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="font-semibold">House Facts Record</h2>
+              <div className="text-right">
+                <p className="text-xs text-gray-500">Maintenance Score</p>
+                <p className="text-2xl font-bold text-blue-600">{houseFacts.maintenanceScore}</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {houseFacts.riskSignals.length > 0 && (
+              <div className="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+                {houseFacts.riskSignals.join(' · ')}
+              </div>
+            )}
+            {houseFacts.timeline.length > 0 ? (
+              <ul className="divide-y divide-gray-100">
+                {houseFacts.timeline.slice(0, 8).map((event) => (
+                  <li key={event.id} className="py-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900">{event.title}</p>
+                        {event.description && <p className="text-xs text-gray-500">{event.description}</p>}
+                      </div>
+                      <div className="text-right text-xs text-gray-500">
+                        <p>{new Date(event.date).toLocaleDateString()}</p>
+                        {event.amount != null && <p>${event.amount}</p>}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-400">House Facts will build as services and documents are saved.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Order history */}
       <Card className="mt-8">

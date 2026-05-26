@@ -96,6 +96,7 @@ model User {
   sentMessages  Message[]    @relation("sender")
   auditLogs     AuditLog[]
   reviews       Review[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -314,4 +315,24 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  orderId   String?
+  channel   String    @default("in_app")
+  type      String
+  title     String
+  body      String
+  status    String    @default("queued")
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("notifications")
 }

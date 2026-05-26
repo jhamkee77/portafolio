@@ -87,6 +87,8 @@ export interface Order {
   service?: Service;
   provider?: Provider;
   user?: User;
+  payment?: Payment;
+  documents?: DocumentRecord[];
   nextStatuses?: OrderStatus[];
 }
 
@@ -106,4 +108,60 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   limit: number;
+}
+
+export interface Payment {
+  id: string;
+  userId: string;
+  amount: number;
+  method: 'card' | 'synchrony';
+  status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'refunded';
+  stripeIntentId?: string;
+  receiptUrl?: string;
+  createdAt: string;
+  order?: Pick<Order, 'id' | 'status'>;
+}
+
+export interface DocumentRecord {
+  id: string;
+  propertyId?: string;
+  orderId?: string;
+  homeSystemId?: string;
+  uploadedById: string;
+  type: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize?: number;
+  mimeType?: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface NotificationRecord {
+  id: string;
+  userId: string;
+  orderId?: string;
+  channel: string;
+  type: string;
+  title: string;
+  body: string;
+  status: string;
+  readAt?: string;
+  createdAt: string;
+}
+
+export interface HouseFactsRecord {
+  property: Pick<Property, 'id' | 'address' | 'city' | 'state' | 'zipCode'>;
+  maintenanceScore: number;
+  homeSystems: HomeSystem[];
+  timeline: Array<{
+    id: string;
+    type: string;
+    title: string;
+    date: string;
+    description?: string;
+    amount?: number;
+  }>;
+  documents: DocumentRecord[];
+  riskSignals: string[];
 }

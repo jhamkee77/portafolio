@@ -17,6 +17,7 @@ import {
   LayoutDashboard,
   Users,
   Truck,
+  Bell,
 } from 'lucide-react';
 
 const homeownerLinks = [
@@ -25,6 +26,7 @@ const homeownerLinks = [
   { href: '/marketplace', label: 'Services', icon: ShoppingBag },
   { href: '/orders', label: 'Orders', icon: ClipboardList },
   { href: '/payments', label: 'Payments', icon: CreditCard },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 

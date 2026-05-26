@@ -8,12 +8,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { validateTransition, getNextStatuses } from './order-state-machine';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private auditLogs: AuditLogsService,
+    private notifications: NotificationsService,
   ) {}
 
   async create(userId: string, dto: CreateOrderDto) {
@@ -99,6 +101,21 @@ export class OrdersService {
       entityId: orderId,
       metadata: { from: oldStatus, to: newStatus, notes },
     });
+
+    await this.notifications.createForUser({
+      userId: order.userId,
+      orderId,
+      type: 'order_status_changed',
+      title: 'Order status updated',
+      body: `Your order is now ${newStatus}.`,
+    });
+
+    if (newStatus === OrderStatus.SavedToPropertyRecord) {
+      await this.prisma.property.update({
+        where: { id: order.propertyId },
+        data: { maintenanceScore: this.scoreAfterSavedRecord() },
+      });
+    }
 
     return { ...updated, previousStatus: oldStatus };
   }
@@ -203,5 +220,9 @@ export class OrdersService {
       this.prisma.order.count({ where }),
     ]);
     return { data: orders, total, page, limit };
+  }
+
+  private scoreAfterSavedRecord() {
+    return 75;
   }
 }

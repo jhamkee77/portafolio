@@ -63,6 +63,16 @@ export class PropertiesController {
     return this.propertiesService.findOne(id, role === 'admin' ? undefined : userId);
   }
 
+  @Get(':id/house-facts')
+  @ApiOperation({ summary: 'Get House Facts Record for a property' })
+  getHouseFacts(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: string,
+    @CurrentUser('role') role: string,
+  ) {
+    return this.propertiesService.getHouseFacts(id, role === 'admin' ? undefined : userId);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update property details' })
   update(

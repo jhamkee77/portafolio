@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PaymentStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
 import { StripeService } from './stripe.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class PaymentsService {
@@ -11,6 +17,7 @@ export class PaymentsService {
     private prisma: PrismaService,
     private auditLogs: AuditLogsService,
     private stripe: StripeService,
+    private notifications: NotificationsService,
   ) {}
 
   async createPaymentIntent(userId: string, dto: CreatePaymentDto) {
@@ -18,9 +25,15 @@ export class PaymentsService {
       where: { id: dto.orderId },
     });
     if (!order) throw new NotFoundException('Order not found');
+    if (order.userId !== userId) {
+      throw new ForbiddenException('Order does not belong to user');
+    }
     if (order.paymentId) throw new BadRequestException('Order already has a payment');
+    if (!order.totalAmount || order.totalAmount <= 0) {
+      throw new BadRequestException('Order does not have a payable total');
+    }
 
-    const intent = await this.stripe.createPaymentIntent(dto.amount, 'usd', {
+    const intent = await this.stripe.createPaymentIntent(order.totalAmount, 'usd', {
       orderId: dto.orderId,
       userId,
     });
@@ -28,7 +41,7 @@ export class PaymentsService {
     const payment = await this.prisma.payment.create({
       data: {
         userId,
-        amount: dto.amount,
+        amount: order.totalAmount,
         method: dto.method || 'card',
         status: PaymentStatus.pending,
         stripeIntentId: intent.id,
@@ -45,7 +58,7 @@ export class PaymentsService {
       action: 'payment.created',
       entityType: 'payment',
       entityId: payment.id,
-      metadata: { orderId: dto.orderId, amount: dto.amount },
+      metadata: { orderId: dto.orderId, amount: order.totalAmount },
     });
 
     return { payment, clientSecret: intent.clientSecret };
@@ -74,6 +87,13 @@ export class PaymentsService {
       entityType: 'payment',
       entityId: paymentId,
       metadata: { status: 'succeeded' },
+    });
+
+    await this.notifications.createForUser({
+      userId: payment.userId,
+      type: 'payment_succeeded',
+      title: 'Payment processed',
+      body: 'Your INDOR payment was processed successfully.',
     });
 
     return updated;
@@ -106,6 +126,73 @@ export class PaymentsService {
     return updated;
   }
 
+  async handleStripeWebhook(payload: Buffer | string, signature?: string) {
+    const event = this.stripe.constructWebhookEvent(payload, signature);
+    const paymentIntent = event?.data?.object;
+    const intentId = paymentIntent?.id;
+
+    await this.auditLogs.create({
+      action: 'payment.webhook_received',
+      entityType: 'stripe_event',
+      entityId: event?.id || intentId || 'unknown',
+      metadata: { type: event?.type },
+    });
+
+    if (!intentId) {
+      return { received: true, type: event?.type || 'unknown' };
+    }
+
+    const payment = await this.prisma.payment.findFirst({
+      where: { stripeIntentId: intentId },
+    });
+    if (!payment) {
+      return { received: true, type: event.type };
+    }
+
+    const nextStatus = this.mapWebhookStatus(event.type);
+    if (!nextStatus || payment.status === nextStatus) {
+      return { received: true, type: event.type };
+    }
+
+    const charge = this.extractCharge(paymentIntent);
+    const updated = await this.prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: nextStatus,
+        stripeChargeId: charge?.id,
+        receiptUrl: charge?.receiptUrl,
+      },
+    });
+
+    await this.auditLogs.create({
+      userId: payment.userId,
+      action: `payment.${nextStatus}`,
+      entityType: 'payment',
+      entityId: payment.id,
+      metadata: { stripeIntentId: intentId, eventType: event.type },
+    });
+
+    if (nextStatus === PaymentStatus.succeeded) {
+      await this.notifications.createForUser({
+        userId: payment.userId,
+        type: 'payment_succeeded',
+        title: 'Payment processed',
+        body: 'Your INDOR payment was processed successfully.',
+      });
+    }
+
+    if (nextStatus === PaymentStatus.failed) {
+      await this.notifications.createForUser({
+        userId: payment.userId,
+        type: 'payment_failed',
+        title: 'Payment failed',
+        body: 'Your INDOR payment could not be processed.',
+      });
+    }
+
+    return { received: true, type: event.type };
+  }
+
   async findByUser(userId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
     const where = { userId };
@@ -129,5 +216,27 @@ export class PaymentsService {
     });
     if (!payment) throw new NotFoundException('Payment not found');
     return payment;
+  }
+
+  private mapWebhookStatus(eventType: string): PaymentStatus | undefined {
+    const statuses: Record<string, PaymentStatus> = {
+      'payment_intent.processing': PaymentStatus.processing,
+      'payment_intent.succeeded': PaymentStatus.succeeded,
+      'payment_intent.payment_failed': PaymentStatus.failed,
+      'charge.refunded': PaymentStatus.refunded,
+    };
+    return statuses[eventType];
+  }
+
+  private extractCharge(paymentIntent: any) {
+    const latestCharge = paymentIntent?.latest_charge;
+    if (latestCharge && typeof latestCharge === 'object') {
+      return { id: latestCharge.id, receiptUrl: latestCharge.receipt_url };
+    }
+    const charge = paymentIntent?.charges?.data?.[0];
+    if (charge) {
+      return { id: charge.id, receiptUrl: charge.receipt_url };
+    }
+    return undefined;
   }
 }

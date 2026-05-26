@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   // Security: Helmet HTTP headers
   app.use(helmet());
@@ -51,6 +51,7 @@ async function bootstrap() {
     .addTag('providers', 'Provider management')
     .addTag('payments', 'Payment processing')
     .addTag('documents', 'Document & file uploads')
+    .addTag('notifications', 'User notifications')
     .addTag('admin', 'Admin operations')
     .addTag('audit-logs', 'Audit trail')
     .build();

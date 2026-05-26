@@ -3,9 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { ordersApi } from '@/lib/api/orders';
+import { paymentsApi } from '@/lib/api/payments';
+import { documentsApi } from '@/lib/api/documents';
 import { useOrderTracking } from '@/hooks/useOrderTracking';
+import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { StatusBadge } from '@/components/ui/badge';
+import { CreditCard, Upload } from 'lucide-react';
 import type { Order, OrderStatus } from '@/types';
 
 const ORDER_TIMELINE: OrderStatus[] = [
@@ -18,6 +22,9 @@ export default function OrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+  const [message, setMessage] = useState('');
   const { status: liveStatus } = useOrderTracking(orderId);
 
   useEffect(() => {
@@ -32,6 +39,53 @@ export default function OrderDetailPage() {
   if (!order) return <div className="text-center py-12 text-gray-400">Order not found</div>;
 
   const currentIndex = ORDER_TIMELINE.indexOf(currentStatus as OrderStatus);
+  const refreshOrder = async () => {
+    const next = await ordersApi.get(orderId);
+    setOrder(next);
+  };
+
+  const handlePayment = async () => {
+    if (!order) return;
+    setPaymentLoading(true);
+    setMessage('');
+    try {
+      const intent = await paymentsApi.createIntent(order.id);
+      await paymentsApi.confirm(intent.payment.id);
+      await refreshOrder();
+      setMessage('Payment processed in test mode.');
+    } catch (err: any) {
+      setMessage(err.response?.data?.message || 'Payment could not be processed.');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  const handleUpload = async (file?: File) => {
+    if (!file || !order) return;
+    setUploadLoading(true);
+    setMessage('');
+    try {
+      const { uploadUrl } = await documentsApi.requestUpload({
+        fileName: file.name,
+        type: file.type.startsWith('image/') ? 'photo' : 'report',
+        orderId: order.id,
+        propertyId: order.propertyId,
+        mimeType: file.type,
+        fileSize: file.size,
+      });
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      });
+      await refreshOrder();
+      setMessage('Document uploaded.');
+    } catch (err: any) {
+      setMessage(err.response?.data?.message || 'Document upload failed.');
+    } finally {
+      setUploadLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl">
@@ -104,6 +158,58 @@ export default function OrderDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <Card>
+          <CardHeader><h2 className="font-semibold">Payment</h2></CardHeader>
+          <CardContent>
+            <dl className="space-y-3 text-sm mb-4">
+              <div className="flex justify-between"><dt className="text-gray-500">Status</dt><dd className="font-medium capitalize">{order.payment?.status || 'Not started'}</dd></div>
+              {order.totalAmount != null && <div className="flex justify-between"><dt className="text-gray-500">Amount</dt><dd className="font-bold">${order.totalAmount}</dd></div>}
+            </dl>
+            {order.payment?.receiptUrl && (
+              <a className="text-sm text-blue-600 hover:text-blue-700" href={order.payment.receiptUrl} target="_blank" rel="noreferrer">View receipt</a>
+            )}
+            {!order.payment && (
+              <Button onClick={handlePayment} loading={paymentLoading} className="w-full gap-2">
+                <CreditCard className="h-4 w-4" />
+                Pay in Test Mode
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><h2 className="font-semibold">Documents</h2></CardHeader>
+          <CardContent>
+            <label className="mb-4 flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-6 text-sm text-gray-600 hover:border-blue-400 hover:text-blue-700">
+              <Upload className="h-4 w-4" />
+              {uploadLoading ? 'Uploading...' : 'Upload photo or PDF'}
+              <input
+                type="file"
+                className="hidden"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                disabled={uploadLoading}
+                onChange={(event) => handleUpload(event.target.files?.[0])}
+              />
+            </label>
+            {order.documents?.length ? (
+              <ul className="divide-y divide-gray-100 text-sm">
+                {order.documents.map((doc) => (
+                  <li key={doc.id} className="py-2">
+                    <p className="font-medium text-gray-900">{doc.fileName}</p>
+                    <p className="text-xs text-gray-500 capitalize">{doc.type}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-400">No documents attached yet.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {message && <p className="mt-4 text-sm text-gray-600">{message}</p>}
 
       {/* Next statuses */}
       {order.nextStatuses && order.nextStatuses.length > 0 && (
